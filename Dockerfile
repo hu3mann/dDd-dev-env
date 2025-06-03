@@ -18,14 +18,17 @@ RUN mkdir -p /usr/share/fonts/truetype/nerd && \
     curl -fLo "FiraCodeNerdFont-Regular.ttf" https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip && unzip FiraCode.zip && rm FiraCode.zip
 
 SHELL ["/bin/zsh", "-c"]
-# Create default .zshrc: initializes DEV_DATA_PATH, Starship, Oh My Zsh, and plugins
-RUN cat << 'EOF' > /root/.zshrc
-# Setup DEV_DATA_PATH; override via environment variable
-export DEV_DATA_PATH=${DEV_DATA_PATH:-/dDd-Dev}
-if [[ -n "$CODESPACES" ]]; then
-export DEV_DATA_PATH=/dDd-Dev
-fi
 
+# Setup DEV_DATA_PATH; override via environment variable
+ENV DEV_DATA_PATH=/dDd-Dev
+
+# In Codespaces, persist DEV_DATA_PATH to /etc/environment for future sessions
+RUN if [ -n "$CODESPACES" ]; then \
+      echo "DEV_DATA_PATH=/dDd-Dev" >> /etc/environment; \
+    fi
+
+# Create default .zshrc: initializes Starship, Oh My Zsh, and plugins
+RUN cat << 'EOF' > /root/.zshrc
 # Load user dotfiles if available
 [[ -f "$DEV_DATA_PATH/.dotfiles/.zshrc" ]] && source "$DEV_DATA_PATH/.dotfiles/.zshrc"
 
@@ -39,3 +42,4 @@ source $ZSH/oh-my-zsh.sh
 
 alias dDd="$DEV_DATA_PATH"
 EOF
+

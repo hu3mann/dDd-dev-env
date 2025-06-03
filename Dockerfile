@@ -30,8 +30,9 @@ RUN if [ -n "$CODESPACES" ]; then \
 # Create default .zshrc: initializes Starship, Oh My Zsh, and plugins
 RUN cat << 'EOF' > /root/.zshrc
 # Load user dotfiles if available
-[[ -f "$DEV_DATA_PATH/.dotfiles/.zshrc" ]] && source "$DEV_DATA_PATH/.dotfiles/.zshrc"
-
+RUN if [ -f "$DEV_DATA_PATH/.dotfiles/.zshrc" ]; then \
+      . "$DEV_DATA_PATH/.dotfiles/.zshrc"; \
+    fi
 # Initialize Starship prompt
 eval "$(starship init zsh)"
 

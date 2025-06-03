@@ -27,12 +27,13 @@ RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git $ZSH && \
     git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions && \
     git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
 
+eval "$(starship init zsh)"
 # Create default .zshrc: initializes DEV_DATA_PATH, Starship, Oh My Zsh, and plugins
 RUN cat << 'EOF' > /root/.zshrc
 # Setup DEV_DATA_PATH; override via environment variable
 export DEV_DATA_PATH=${DEV_DATA_PATH:-/dDd-Dev}
 if [[ -n "$CODESPACES" ]]; then
-  DEV_DATA_PATH=/dDd-Dev
+  export DEV_DATA_PATH=/dDd-Dev
 fi
 
 # Load user dotfiles if available
@@ -45,6 +46,7 @@ eval "$(starship init zsh)"
 export ZSH=/root/.oh-my-zsh
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 source $ZSH/oh-my-zsh.sh
+
 alias dDd="$DEV_DATA_PATH"
 EOF
 

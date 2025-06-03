@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 IMAGE="ghcr.io/hu3mann/ddd-dev-env:latest"
 
 echo "Pulling latest image..."

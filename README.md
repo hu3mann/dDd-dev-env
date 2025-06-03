@@ -1,4 +1,4 @@
-# dDd-dev-env
+# dDd-dev-env (Portable Development Environment)
 
 This repository provides a portable development environment that can run both locally (via Docker/GHCR)
 and in GitHub Codespaces. It includes Zsh with Starship as the primary prompt, Oh My Zsh for shell

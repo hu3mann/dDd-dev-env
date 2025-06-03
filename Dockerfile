@@ -23,7 +23,7 @@ RUN cat << 'EOF' > /root/.zshrc
 # Setup DEV_DATA_PATH; override via environment variable
 export DEV_DATA_PATH=${DEV_DATA_PATH:-/dDd-Dev}
 if [[ -n "$CODESPACES" ]]; then
-  export DEV_DATA_PATH=/dDd-Dev
+export DEV_DATA_PATH=/dDd-Dev
 fi
 
 # Load user dotfiles if available

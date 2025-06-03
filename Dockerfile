@@ -27,7 +27,8 @@ RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git $ZSH && \
     git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions && \
     git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
 
-eval "$(starship init zsh)"
+# --- Removed invalid eval instruction here ---
+
 # Create default .zshrc: initializes DEV_DATA_PATH, Starship, Oh My Zsh, and plugins
 RUN cat << 'EOF' > /root/.zshrc
 # Setup DEV_DATA_PATH; override via environment variable

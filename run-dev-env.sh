@@ -1,5 +1,5 @@
 #!/bin/bash
-IMAGE="ghcr.io/YOUR_USERNAME/dDd-dev-env:latest"
+IMAGE="ghcr.io/hu3mann/ddd-dev-env:latest"
 
 echo "Pulling latest image..."
 docker pull $IMAGE

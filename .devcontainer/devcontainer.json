@@ -1,0 +1,14 @@
+{
+  "name": "dDd Dev Env",
+  "build": {
+    "dockerfile": "../Dockerfile"
+  },
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/zsh",
+    "editor.fontFamily": "Fira Code Nerd Font"
+  },
+  "mounts": [
+    "source=/Volumes/dDd-Dev,target=/dDd-Dev,type=bind"
+  ],
+  "remoteUser": "root"
+}

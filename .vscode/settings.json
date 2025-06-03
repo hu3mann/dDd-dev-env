@@ -1,0 +1,4 @@
+{
+  "terminal.integrated.fontFamily": "Fira Code Nerd Font",
+  "terminal.integrated.defaultProfile.linux": "zsh"
+}

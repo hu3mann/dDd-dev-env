@@ -15,7 +15,9 @@ RUN curl -sS https://starship.rs/install.sh | sh -s -- -y
 # Install Nerd Fonts (Fira Code)
 RUN mkdir -p /usr/share/fonts/truetype/nerd && \
     cd /usr/share/fonts/truetype/nerd && \
-    curl -fLo "FiraCodeNerdFont-Regular.ttf" https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip && unzip FiraCode.zip && rm FiraCode.zip
+    curl -fLo FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip && \
+    unzip FiraCode.zip && \
+    rm FiraCode.zip
 
 SHELL ["/bin/zsh", "-c"]
 
@@ -42,4 +44,3 @@ source $ZSH/oh-my-zsh.sh
 
 alias dDd="$DEV_DATA_PATH"
 EOF
-

@@ -1,6 +1,15 @@
+FROM debian:bookworm-slim
+
+SHELL ["/bin/bash", "-c"]
+
+# (Optional) Install dependencies here, e.g.:
+# RUN apt-get update && apt-get install -y zsh git curl
+
+ENV DEV_DATA_PATH=/dDd-Dev
+
 RUN cat << 'EOF' > /root/.zshrc
 # Load user dotfiles if available
-\[\[ -f "$DEV_DATA_PATH/.dotfiles/.zshrc" \]\] && source "$DEV_DATA_PATH/.dotfiles/.zshrc"
+[[ -f "$DEV_DATA_PATH/.dotfiles/.zshrc" ]] && source "$DEV_DATA_PATH/.dotfiles/.zshrc"
 
 # Initialize Starship prompt
 eval "$(starship init zsh)"

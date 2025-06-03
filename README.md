@@ -1,68 +1,116 @@
 # dDd-dev-env (Portable Development Environment)
 
-This repository provides a portable development environment that can run both locally (via Docker/GHCR)
-and in GitHub Codespaces. It includes Zsh with Starship as the primary prompt, Oh My Zsh for shell
-enhancements/plugins, and cloning or persisting your personal `dDd-Dev` data directory.
+This repository defines a portable development container image that you can use:
+1. **Locally** via Docker / GitHub Container Registry (GHCR)
+2. **In GitHub Codespaces** via the built‑in devcontainer support
+
+It boots Debian with Zsh, Starship as the primary prompt, Oh My Zsh plugins, and auto‑sources your
+private dotfiles from an external "dDd‑Dev" data directory.
 
 ## Prerequisites
 
-- Docker (for local usage)
-- GitHub account & GitHub Codespaces (optional, for cloud dev)
+- **Docker** 20.10 or newer (local usage)
+- (Optional) **GitHub account & Codespaces** for cloud dev
+- (Optional) **GitHub PAT** with `write:packages` (if you push your image to GHCR)
+- **Private dotfiles** repo (added as a submodule under your data root at `.dotfiles/`) containing:
+  - `~/.zshrc`, other shell configs
+  - `.docker/config.json` with GHCR creds
+
+> **Security note:** Keep your dotfiles repo private so credentials never leak.
+
+## SSD / DEV_DATA_PATH Layout
+
+Your projects, dotfiles, and VS Code data should live under a persistent "data root" (SSD/host directory).
+By default the helper script mounts this repo's parent directory into the container as `/dDd-Dev`. Example:
+
+```text
+/Volumes/SSD-Data
+├── .dotfiles           # submodule → your private dotfiles repo
+├── code-portable-data  # VS Code settings & extensions
+└── Projects
+    ├── dDd-dev-env     # this repo
+    ├── project-A
+    └── project-B
+```
 
 ## Local Usage (Docker)
 
-1. Clone this repo and navigate into it:
-   ```bash
-   git clone https://github.com/yourusername/dDd-dev-env.git
-   cd dDd-dev-env
-   ```
+```bash
+# 1. Clone & cd into this repo
+git clone git@github.com:hu3mann/dDd-dev-env.git
+cd dDd-dev-env
 
-2. (Optional) If your data directory lives elsewhere, set `DEV_DATA_PATH`:
-   ```bash
-   export DEV_DATA_PATH=/path/to/your/dDd-Dev
-   ```
-   By default, the script will mount the parent directory of this repository (i.e. your data root).
+# 2. (Optional) Login to GHCR for pulling/pushing
+echo "$GHCR_PAT" \
+  | docker login ghcr.io --username hu3mann --password-stdin
 
-3. Run the helper script to pull the latest image and start an interactive shell:
-   ```bash
-   ./run-dev-env.sh
-   ```
+# 3. (Optional) Override data root if outside parent directory
+export DEV_DATA_PATH=/Volumes/SSD-Data
 
-Inside the container, Zsh will load Starship and Oh My Zsh (with autosuggestions & syntax highlighting),
-and will source your personal dotfiles if they exist at `$DEV_DATA_PATH/.dotfiles/.zshrc`.
+# 4. Launch the container (mounts your data root → /dDd-Dev)
+./run-dev-env.sh
+```
+
+Inside the container, Zsh will:
+- Source `$DEV_DATA_PATH/.dotfiles/.zshrc`
+- Initialize Starship prompt
+- Load Oh My Zsh with `zsh-autosuggestions` & `zsh-syntax-highlighting`
+
+Your `code-portable-data/` and `Projects/…` appear under `/dDd-Dev`.
+
+## Building & Publishing the Image (GHCR)
+
+On each push to `main`, the included GitHub Actions workflow
+(`.github/workflows/build-and-push.yml`) will build and push:
+```
+ghcr.io/hu3mann/ddd-dev-env:latest
+```
+
+### Manual (Local) build & push
+
+```bash
+# from repo root
+docker build -t ghcr.io/hu3mann/ddd-dev-env:latest .
+docker push ghcr.io/hu3mann/ddd-dev-env:latest
+```
 
 ## GitHub Codespaces
 
-The Codespaces devcontainer is configured to:
+Open this repo in a new Codespace or VS Code Remote-Container. The devcontainer will:
+1. Mount a persistent volume at `/dDd-Dev`
+2. On first startup, clone your data repo into `/dDd-Dev` if the volume is empty
 
-- Mount a persistent Dev Container volume at `/dDd-Dev`.
-- Clone your data repo on first creation if `/dDd-Dev` is empty.
+### Configure your data repo URL
 
-### Configuring your data repo URL
+In `.devcontainer/devcontainer.json`, set `DEV_DATA_REPO_URL` to your data‑repo:
 
-Edit `.devcontainer/devcontainer.json`, replacing `YOUR_USERNAME` in `remoteEnv.DEV_DATA_REPO_URL`
-with your GitHub user/org and repo name:
-
-```diff
-  "remoteEnv": {
--   "DEV_DATA_REPO_URL": "https://github.com/YOUR_USERNAME/dDd-Dev.git"
-   "DEV_DATA_REPO_URL": "https://github.com/myuser/dDd-Dev.git"
-  },
+```jsonc
+"remoteEnv": {
+  "DEV_DATA_REPO_URL": "https://github.com/hu3mann/dDd-Dev.git"
+},
 ```
 
-Then open this repo in VS Code and choose **Reopen in Container** (or start a new Codespace).
+## Managing Your Dotfiles Submodule
 
-On first startup, the container will automatically clone your data repo into `/dDd-Dev`.
-Subsequent sessions will reuse the volume to persist changes.
+Your private dotfiles repo (`git@github.com:hu3mann/dotfiles.git`) holds your shell config and GHCR creds.
+To link it under your data root:
 
-## Customizing the Shell
+```bash
+# one‑time init (if not already)
+git submodule add git@github.com:hu3mann/dotfiles.git .dotfiles
+git submodule update --init --recursive
+```
 
-The default `/root/.zshrc` inside the container:
+When you change your dotfiles:
 
-- Sets up the `DEV_DATA_PATH` (and switches to `/dDd-Dev` if running in Codespaces).
-- Sources your personal dotfiles if available.
-- Initializes the Starship prompt.
-- Loads Oh My Zsh with `zsh-autosuggestions` & `zsh-syntax-highlighting`.
+```bash
+cd .dotfiles && git add . && git commit -m "chore: update dotfiles" && git push
+cd ..
+git add .dotfiles && git commit -m "chore: bump dotfiles submodule" && git push
+```
 
-Feel free to adjust or extend this configuration by editing your personal dotfiles
-at `$DEV_DATA_PATH/.dotfiles/.zshrc`.
+## Switching Between Projects
+
+Every project under `Projects/…` can use this same base image. Simply open its folder in VS Code and
+**Reopen in Container**. For a multi‑root workspace that loads all your repos in one window, move
+`.devcontainer/` up to the data‑root and create a `.code-workspace` listing each `Projects/<repo>`.

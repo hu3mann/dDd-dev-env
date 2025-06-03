@@ -32,7 +32,7 @@ RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git $ZSH && \
 # Create default .zshrc: initializes DEV_DATA_PATH, Starship, Oh My Zsh, and plugins
 RUN cat << 'EOF' > /root/.zshrc
 # Setup DEV_DATA_PATH; override via environment variable
-export DEV_DATA_PATH=${DEV_DATA_PATH:-/dDd-Dev}
+ENV DEV_DATA_PATH=${DEV_DATA_PATH:-/dDd-Dev}
 if [[ -n "$CODESPACES" ]]; then
   export DEV_DATA_PATH=/dDd-Dev
 fi

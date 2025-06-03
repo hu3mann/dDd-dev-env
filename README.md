@@ -21,7 +21,7 @@ enhancements/plugins, and cloning or persisting your personal `dDd-Dev` data dir
    ```bash
    export DEV_DATA_PATH=/path/to/your/dDd-Dev
    ```
-   By default, the script will mount `/Volumes/dDd-Dev`.
+   By default, the script will mount the parent directory of this repository (i.e. your data root).
 
 3. Run the helper script to pull the latest image and start an interactive shell:
    ```bash

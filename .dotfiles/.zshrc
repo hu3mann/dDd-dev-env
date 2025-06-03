@@ -1,9 +1,8 @@
-# Set up Oh My Zsh path and Dev Drive variable
+# Set up Oh My Zsh path
 export ZSH="/root/.oh-my-zsh"
-export DDD="/Volumes/dDd-Dev"
-
+# DEV_DATA_PATH is set by the container entrypoint or your host script
 # Alias to quickly load SSH key
-alias sshkey="$DDD/.dotfiles/ssh-setup.sh"
+alias sshkey="$DEV_DATA_PATH/.dotfiles/ssh-setup.sh"
 
 # Theme
 ZSH_THEME="robbyrussell"

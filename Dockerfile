@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     gnupg software-properties-common python3 python3-pip \
     nodejs npm ripgrep fzf bat httpie \
     zsh-autosuggestions zsh-syntax-highlighting \
+    exa htop tmux \
     && apt-get clean
 
 # Install Starship
@@ -41,4 +42,12 @@ RUN echo '# Load user dotfiles if available' >> /root/.zshrc && \
     echo 'plugins=(git zsh-autosuggestions zsh-syntax-highlighting)' >> /root/.zshrc && \
     echo 'source $ZSH/oh-my-zsh.sh' >> /root/.zshrc && \
     echo '' >> /root/.zshrc && \
-    echo 'alias dDd="$DEV_DATA_PATH"' >> /root/.zshrc
+    echo 'alias dDd="$DEV_DATA_PATH"' >> /root/.zshrc && \
+    echo '' >> /root/.zshrc && \
+    echo '# Convenience aliases and env vars' >> /root/.zshrc && \
+    echo 'alias ls="exa --icons"' >> /root/.zshrc && \
+    echo 'alias ll="ls -alF"' >> /root/.zshrc && \
+    echo 'alias la="ls -A"' >> /root/.zshrc && \
+    echo 'alias l="ls -CF"' >> /root/.zshrc && \
+    echo 'alias cat="bat"' >> /root/.zshrc && \
+    echo 'export EDITOR=nano' >> /root/.zshrc

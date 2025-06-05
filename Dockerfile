@@ -1,4 +1,5 @@
 # … lines 1–2 unchanged …
+FROM ubuntu:22.04
 
 # 3) Install core packages via apt (minus ripgrep-all and git-delta)
 RUN apt-get update && \
@@ -73,20 +74,22 @@ RUN printf '%s\n' \
     'export ZSH=/root/.oh-my-zsh' \
     'plugins=(git zsh-autosuggestions zsh-syntax-highlighting)' \
     'source $ZSH/oh-my-zsh.sh' \
-    '' \
-    '# Alias for DEV_DATA_PATH' \
-    'alias dDd="$DEV_DATA_PATH"' \
-    > /root/.zshrc
+RUN cat << 'EOF' > /root/.zshrc
+# ────────────────────────────────────────────────────────────────────────────
+# Load user dotfiles if available
+if [[ -f "$DEV_DATA_PATH/.dotfiles/.zshrc" ]]; then source "$DEV_DATA_PATH/.dotfiles/.zshrc"; fi
 
-# 11) Install Python‐based AI/CLI tools
-RUN python3 -m pip install --upgrade pip setuptools wheel && \
-    python3 -m pip install --user pipx && \
-    ~/.local/bin/pipx ensurepath && \
-    ~/.local/bin/pipx install shell-gpt && \
-    ~/.local/bin/pipx install llm && \
-    ~/.local/bin/pipx install osh && \
-    ~/.local/bin/pipx install readme-ai && \
-    ~/.local/bin/pipx install redacter
+# Initialize Starship prompt
+eval "$(starship init zsh)"
+
+# Load Oh My Zsh and selected plugins
+export ZSH=/root/.oh-my-zsh
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+source $ZSH/oh-my-zsh.sh
+
+# Alias to quickly jump to DEV_DATA_PATH
+alias dDd="$DEV_DATA_PATH"
+EOF
 
 # 12) Install Node‐based AI/CLI tools
 RUN npm install -g @diagramgpt/cli devopsgpt

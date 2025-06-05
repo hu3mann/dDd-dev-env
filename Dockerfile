@@ -1,5 +1,5 @@
 # ┌────────────────────────────────────────────────────────────────────────────┐
-# │   dDd-dev-env Dockerfile (Debian Bookworm-Slim, corrected)                │
+# │   dDd-dev-env Dockerfile (Debian Bookworm-Slim, fixed here-doc)           │
 # └────────────────────────────────────────────────────────────────────────────┘
 
 FROM debian:bookworm-slim
@@ -36,14 +36,13 @@ RUN apt-get update && \
       git-delta \
       diffutils \
       htop && \
-    # Install gdu manually (not in Bookworm’s default repos)
+    # Install gdu manually (Bookworm has no gdu package)
     wget -qO /tmp/gdu.deb \
       https://github.com/dundee/gdu/releases/download/v5.19.0/gdu_5.19.0_linux_amd64.deb && \
     dpkg -i /tmp/gdu.deb && \
     rm /tmp/gdu.deb && \
     # Clean up apt caches
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 2) Install Starship prompt
 RUN curl -sS https://starship.rs/install.sh | sh -s -- -y
@@ -71,23 +70,23 @@ RUN if [[ -n "$CODESPACES" ]]; then \
 RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh
 
 # 7) Create a minimal /root/.zshrc that:
-#    • Sources $DEV_DATA_PATH/.dotfiles/.zshrc if present
+#    • Sources $DEV_DATA_PATH/.dotfiles/.zshrc if it exists
 #    • Initializes Starship
 #    • Loads Oh My Zsh and plugins
-RUN echo '# ────────────────────────────────────────────────────────────────────────────'   >> /root/.zshrc && \
-    echo '# Load user dotfiles if available'                                              >> /root/.zshrc && \
+RUN echo '# ────────────────────────────────────────────────────────────────────────────' >> /root/.zshrc && \
+    echo '# Load user dotfiles if available' >> /root/.zshrc && \
     echo 'if [[ -f "$DEV_DATA_PATH/.dotfiles/.zshrc" ]]; then source "$DEV_DATA_PATH/.dotfiles/.zshrc"; fi' >> /root/.zshrc && \
-    echo ''                                                                              >> /root/.zshrc && \
-    echo '# Initialize Starship prompt'                                                   >> /root/.zshrc && \
-    echo 'eval "$(starship init zsh)"'                                                    >> /root/.zshrc && \
-    echo ''                                                                              >> /root/.zshrc && \
-    echo '# Load Oh My Zsh and selected plugins'                                         >> /root/.zshrc && \
-    echo 'export ZSH=/root/.oh-my-zsh'                                                    >> /root/.zshrc && \
-    echo 'plugins=(git zsh-autosuggestions zsh-syntax-highlighting)'                     >> /root/.zshrc && \
-    echo 'source $ZSH/oh-my-zsh.sh'                                                       >> /root/.zshrc && \
-    echo ''                                                                              >> /root/.zshrc && \
-    echo '# Alias to quickly jump to DEV_DATA_PATH'                                       >> /root/.zshrc && \
-    echo 'alias dDd="$DEV_DATA_PATH"'                                                     >> /root/.zshrc
+    echo '' >> /root/.zshrc && \
+    echo '# Initialize Starship prompt' >> /root/.zshrc && \
+    echo 'eval "$(starship init zsh)"' >> /root/.zshrc && \
+    echo '' >> /root/.zshrc && \
+    echo '# Load Oh My Zsh and selected plugins' >> /root/.zshrc && \
+    echo 'export ZSH=/root/.oh-my-zsh' >> /root/.zshrc && \
+    echo 'plugins=(git zsh-autosuggestions zsh-syntax-highlighting)' >> /root/.zshrc && \
+    echo 'source $ZSH/oh-my-zsh.sh' >> /root/.zshrc && \
+    echo '' >> /root/.zshrc && \
+    echo '# Alias to quickly jump to DEV_DATA_PATH' >> /root/.zshrc && \
+    echo 'alias dDd="$DEV_DATA_PATH"' >> /root/.zshrc
 
 # 8) Install Python-based AI/CLI tools via pipx
 RUN python3 -m pip install --upgrade pip setuptools wheel && \

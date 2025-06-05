@@ -55,8 +55,13 @@ Inside the container, Zsh will:
 - Source `$DEV_DATA_PATH/.dotfiles/.zshrc`
 - Initialize Starship prompt
 - Load Oh My Zsh with `zsh-autosuggestions` & `zsh-syntax-highlighting`
+- Provide helpful aliases (`ls` → `exa --icons`, `ll`, `la`, `l`) and sets `EDITOR=nano`
 
 Your `code-portable-data/` and `Projects/…` appear under `/dDd-Dev`.
+
+### Included CLI tools
+
+The image comes with handy utilities like `ripgrep`, `fzf`, `bat`, `exa`, `htop`, and `tmux` preinstalled.
 
 ## Building & Publishing the Image (GHCR)
 

@@ -36,3 +36,4 @@ grep -q "zoxide init" ~/.zshrc || echo 'eval "$(zoxide init zsh)"' >> ~/.zshrc
 "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-update-rc
 
 echo "✅  dDd‑dev‑env toolchain installed.  Open a new terminal or run 'exec zsh'."
+

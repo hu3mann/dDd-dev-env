@@ -1,13 +1,13 @@
 # ┌────────────────────────────────────────────────────────────────────────────┐
-# │   dDd-dev-env Dockerfile (Debian Bookworm-Slim, updated)                    │
+# │   dDd-dev-env Dockerfile (Debian Bookworm-Slim, corrected)                │
 # └────────────────────────────────────────────────────────────────────────────┘
 
 FROM debian:bookworm-slim
 
-# Use noninteractive frontend
+# Use non-interactive frontend for apt
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 1) Core apt installs: your original list plus extras that exist in Debian
+# 1) Install core packages via apt
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       curl \
@@ -27,25 +27,23 @@ RUN apt-get update && \
       fzf \
       bat \
       httpie \
-      # zsh plugins (install via apt so Oh My Zsh can pick them up)
       zsh-autosuggestions \
       zsh-syntax-highlighting \
-      # === new/extra tools via apt if available in Debian Bookworm ===
       fd-find \
       ripgrep-all \
       exa \
       jq \
       git-delta \
       diffutils \
-      fd-find \
-      htop \
-      # gdu (not in Bookworm by default; install from backports)
-      && \
-    # Install gdu from a direct .deb since Debian Bookworm has no gdu package
-    wget -qO /tmp/gdu.deb https://github.com/dundee/gdu/releases/download/v5.19.0/gdu_5.19.0_linux_amd64.deb && \
-    dpkg -i /tmp/gdu.deb && rm /tmp/gdu.deb && \
-    # Clean up Apt caches
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+      htop && \
+    # Install gdu manually (not in Bookworm’s default repos)
+    wget -qO /tmp/gdu.deb \
+      https://github.com/dundee/gdu/releases/download/v5.19.0/gdu_5.19.0_linux_amd64.deb && \
+    dpkg -i /tmp/gdu.deb && \
+    rm /tmp/gdu.deb && \
+    # Clean up apt caches
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # 2) Install Starship prompt
 RUN curl -sS https://starship.rs/install.sh | sh -s -- -y
@@ -58,23 +56,24 @@ RUN mkdir -p /usr/share/fonts/truetype/nerd && \
     unzip FiraCode.zip && \
     rm FiraCode.zip
 
-# Use zsh as the default shell for the subsequent RUNs
+# Switch default shell for RUN steps to zsh
 SHELL ["/bin/zsh", "-c"]
 
-# 4) Set DEV_DATA_PATH; can be overridden via environment
+# 4) Set DEV_DATA_PATH (overrideable via environment)
 ENV DEV_DATA_PATH=/dDd-Dev
 
-# If running in Codespaces, persist DEV_DATA_PATH in /etc/environment
+# 5) In Codespaces, persist DEV_DATA_PATH for future sessions
 RUN if [[ -n "$CODESPACES" ]]; then \
       echo "DEV_DATA_PATH=/dDd-Dev" >> /etc/environment; \
     fi
 
-# 5) Install Oh My Zsh (noninteractive, default directory /root/.oh-my-zsh)
+# 6) Install Oh My Zsh (so /root/.oh-my-zsh exists)
 RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh
 
-# 6) Create a minimal ~/.zshrc that:
-#    • sources $DEV_DATA_PATH/.dotfiles/.zshrc if it exists
-#    • initializes Starship, Oh My Zsh, and plugins
+# 7) Create a minimal /root/.zshrc that:
+#    • Sources $DEV_DATA_PATH/.dotfiles/.zshrc if present
+#    • Initializes Starship
+#    • Loads Oh My Zsh and plugins
 RUN echo '# ────────────────────────────────────────────────────────────────────────────'   >> /root/.zshrc && \
     echo '# Load user dotfiles if available'                                              >> /root/.zshrc && \
     echo 'if [[ -f "$DEV_DATA_PATH/.dotfiles/.zshrc" ]]; then source "$DEV_DATA_PATH/.dotfiles/.zshrc"; fi' >> /root/.zshrc && \
@@ -90,7 +89,7 @@ RUN echo '# ──────────────────────�
     echo '# Alias to quickly jump to DEV_DATA_PATH'                                       >> /root/.zshrc && \
     echo 'alias dDd="$DEV_DATA_PATH"'                                                     >> /root/.zshrc
 
-# 7) Install Python-based AI/CLI tools via pipx
+# 8) Install Python-based AI/CLI tools via pipx
 RUN python3 -m pip install --upgrade pip setuptools wheel && \
     python3 -m pip install --user pipx && \
     ~/.local/bin/pipx ensurepath && \
@@ -100,27 +99,28 @@ RUN python3 -m pip install --upgrade pip setuptools wheel && \
     ~/.local/bin/pipx install readme-ai && \
     ~/.local/bin/pipx install redacter
 
-# 8) Install Node-based AI/CLI tools via npm
+# 9) Install Node-based AI/CLI tools via npm
 RUN npm install -g @diagramgpt/cli devopsgpt
 
-# 9) Install Rust toolchain (needed for chatgpt-code-plugin)
+# 10) Install Rust toolchain & chatgpt-code-plugin
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
     source "$HOME/.cargo/env" && \
     cargo install chatgpt-code-plugin
 
-# 10) Switch back to bash for remaining apt cleanup (if any)
+# Switch back to bash for any leftover steps
 SHELL ["/bin/bash", "-c"]
 
-# 11) Create a non-root user "ddd" and set Zsh as its shell
+# 11) Create a non-root user "ddd" with zsh as its login shell
 RUN useradd -m -s /usr/bin/zsh ddd
 
+# Switch to user ddd for the rest
 USER ddd
 WORKDIR /home/ddd
 
-# 12) Create placeholder for dotfiles mount inside /dDd-Dev
+# 12) Create a placeholder for dotfiles mount at runtime
 RUN mkdir -p /dDd-Dev/.dotfiles
 
-# 13) Create entrypoint script (runs as user 'ddd')
+# 13) Create entrypoint.sh (runs at container start, as user 'ddd')
 COPY --chown=ddd:ddd << 'EOF' /home/ddd/entrypoint.sh
 #!/usr/bin/env bash
 set -euo pipefail
@@ -135,13 +135,14 @@ fi
 if [[ -f "$HOME/.dotfiles/.zshrc" ]]; then
   source "$HOME/.dotfiles/.zshrc"
 else
-  echo "⚠️  No ~/.dotfiles/.zshrc found. Please mount your dotfiles at /dDd-Dev/.dotfiles"
+  echo "⚠️  No ~/.dotfiles/.zshrc found. Mount your dotfiles at /dDd-Dev/.dotfiles"
 fi
 
-# 3) Exec Zsh as login
+# 3) Exec Zsh as a login shell
 exec /usr/bin/zsh --login
 EOF
 
+# Make entrypoint executable
 RUN chmod +x /home/ddd/entrypoint.sh
 
 # 14) Set entrypoint and default command

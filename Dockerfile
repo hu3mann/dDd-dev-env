@@ -1,6 +1,4 @@
-# ┌────────────────────────────────────────────────────────────────────────────┐
-# │   dDd-dev-env Dockerfile (Ubuntu 22.04, corrected)                        │
-# └────────────────────────────────────────────────────────────────────────────┘
+# dDd-dev-env Dockerfile (Debian 12/bookworm-slim)
 
 # 1) Base image:bookworm-slim (Debian 12)
 FROM debian:bookworm-slim

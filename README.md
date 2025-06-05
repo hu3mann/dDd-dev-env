@@ -31,10 +31,10 @@ dDd-dev-env/                 # ← this repo
 ├─ docker-login-ghcr.sh      # secure GHCR login helper
 ├─ LaunchNewStarship.sh      # macOS “new-machine spin-up” script
 ├─ installDocker.{sh,command}# Docker Desktop bootstrap (portable Homebrew)
-├─ openDevEnv.command        # macOS one-click VS Code launcher
-├─ .devcontainer/            # Codespaces config
-└─ .github/workflows/        # CI to build & push to GHCR
-```
+├─ openDevEnv.command # macOS one-click VS Code launcher
+├─ .devcontainer/ # Codespaces config
+└─ .github/workflows/ # CI to build & push to GHCR
+
 
 Your **persistent data** lives *outside* the repo, usually on an external volume:
 
@@ -64,24 +64,17 @@ cd /Volumes/SSD-Data/Projects/dDd-dev-env
 # 3. Fire up the container, mounting the whole SSD as /dDd-Dev
 ./run-dev-env.sh
 # → drops you into /workspace (repo root) with slick Starship prompt
-```
-
 Tips:
 
-- If you change $DEV_DATA_PATH (e.g., to a different external SSD), just re-export that env var before running.
-- To use a local Docker image instead of GHCR:
-  ```bash
-  docker build -t ddd-dev-env:local .
-  docker run -it \
-    -v "/Volumes/SSD-Data:/dDd-Dev:rw" \
-    -v "$PWD:/workspace:rw" \
-    -w "/workspace" \
-    ddd-dev-env:local
-  ```
-
----
-
-## 4️⃣ New-Mac Spin-Up (Apple Silicon)
+If you change $DEV_DATA_PATH (e.g., to a different external SSD), just re-export that env var before running.
+To use a local Docker image instead of GHCR:
+docker build -t ddd-dev-env:local .
+docker run -it \
+  -v "/Volumes/SSD-Data:/dDd-Dev:rw" \
+  -v "$PWD:/workspace:rw" \
+  -w "/workspace" \
+  ddd-dev-env:local
+4️⃣ New-Mac Spin-Up (Apple Silicon)
 
 Got a virgin Mac? 🎉  
 Plug in the SSD and run:

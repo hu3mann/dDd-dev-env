@@ -40,6 +40,11 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
     wp plugin install ai-engine jetpack rank-math-seo \
       bertha-ai 10web-ai simply-static-pro wp2static --activate --allow-root
 
+      # --- 6. Install additional WP plugins ---------------------------------------
+RUN mkdir -p /var/www && cd /var/www && \
+        wp plugin install ai-engine jetpack rank-math-seo bertha-ai \
+          10web-ai-builder wp2static simply-static-pro --activate --allow-root
+
 # --- copy pre‑built Zsh config (avoids heredoc parse error) ------------
 COPY root.zshrc /root/.zshrc
 COPY entrypoint.sh /entrypoint.sh

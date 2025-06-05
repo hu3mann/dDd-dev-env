@@ -1,4 +1,6 @@
-# dDd-dev-env Dockerfile (Ubuntu 22.04, corrected)
+# ┌────────────────────────────────────────────────────────────────────────────┐
+# │   dDd-dev-env Dockerfile (Ubuntu 22.04, corrected)                        │
+# └────────────────────────────────────────────────────────────────────────────┘
 
 # 1) Base image: Ubuntu 22.04
 FROM ubuntu:22.04
@@ -83,10 +85,10 @@ eval "$(starship init zsh)"
 # Load Oh My Zsh and selected plugins
 export ZSH=/root/.oh-my-zsh
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
-source $ZSH/oh-my-zsh.sh
+source \$ZSH/oh-my-zsh.sh
 
 # Alias to quickly jump to DEV_DATA_PATH
-alias dDd="$DEV_DATA_PATH"
+alias dDd="\$DEV_DATA_PATH"
 EOF
 
 # 11) Install Python‐based AI/CLI tools via pipx

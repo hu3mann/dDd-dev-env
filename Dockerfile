@@ -20,8 +20,13 @@ RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y && \
     rm /tmp/FiraCode.zip && fc-cache -f -v
 
 # --- 3. Oh‑My‑Zsh without heredoc trouble ----------------------------------
-COPY root.zshrc /root/.zshrc          # <- keep this file in repo
 RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh
+
+# --- starship theme ----------------------------------------------------
+COPY starship.toml /root/.config/starship/starship.toml
+RUN install -o ddd -g ddd -m 644 /root/.config/starship/starship.toml \
+      /home/ddd/.config/starship/starship.toml
+# -----------------------------------------------------------------------
 
 # --- 4. non‑root dev user ---------------------------------------------------
 RUN useradd -m -s /usr/bin/zsh ddd
@@ -35,7 +40,8 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
     wp plugin install ai-engine jetpack rank-math-seo \
       bertha-ai 10web-ai simply-static-pro wp2static --activate --allow-root
 
-# --- 6. entrypoint clones dotfiles if missing -------------------------------
+# --- copy pre‑built Zsh config (avoids heredoc parse error) ------------
+COPY root.zshrc /root/.zshrc
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

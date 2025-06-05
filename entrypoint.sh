@@ -1,18 +1,11 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -e
 
-# 1) If /dDd-Dev/.dotfiles exists, symlink it to ~/.dotfiles
-if [[ -d "/dDd-Dev/.dotfiles" ]]; then
-  rm -rf "$HOME/.dotfiles"
-  ln -s /dDd-Dev/.dotfiles "$HOME/.dotfiles"
+# Bootstrap dotfiles if external drive or mount isn’t present
+DOTS="/dDd-Dev/.dotfiles"
+if [[ ! -d "$DOTS" ]]; then
+  echo "Dotfiles not found, cloning private repo..."
+  git clone --depth=1 [email protected]:hu3mann/dotfiles.git "$DOTS" || true
 fi
 
-# 2) If ~/.dotfiles/.zshrc exists, source it; otherwise, warn
-if [[ -f "$HOME/.dotfiles/.zshrc" ]]; then
-  source "$HOME/.dotfiles/.zshrc"
-else
-  echo "⚠️  No ~/.dotfiles/.zshrc found. Mount your dotfiles at /dDd-Dev/.dotfiles"
-fi
-
-# 3) Exec Zsh as a login shell
-exec /usr/bin/zsh --login
+exec "$@"

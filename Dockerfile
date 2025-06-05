@@ -1,17 +1,15 @@
-# dDd-dev-env Dockerfile (Debian 12/bookworm-slim)
+# dDd-dev-env Dockerfile (Debian 12/bookworm-slim)
 
-# 1) Base image:bookworm-slim (Debian 12)
 FROM debian:bookworm-slim
-
-# 2) Prevent interactive prompts during apt installs
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 3) Install core packages via apt (omit ripgrep-all and git-delta)
+# Install core tools (GitHub CLI, jq, ripgrep, fzf, bat, httpie, Node, Python3, etc.)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       curl \
       zsh \
       git \
+      gh \
       nano \
       wget \
       unzip \
@@ -20,115 +18,88 @@ RUN apt-get update && \
       software-properties-common \
       python3 \
       python3-pip \
+      python3-pipx \
       nodejs \
       npm \
       ripgrep \
       fzf \
       bat \
       httpie \
-      zsh-autosuggestions \
-      zsh-syntax-highlighting \
       fd-find \
       exa \
       jq \
       diffutils \
       htop && \
-    # Install gdu manually (Ubuntu 22.04 has no gdu package in default repos)
-    wget -qO /tmp/gdu.deb \
-      https://github.com/dundee/gdu/releases/download/v5.19.0/gdu_5.19.0_linux_amd64.deb && \
-    dpkg -i /tmp/gdu.deb && \
-    rm /tmp/gdu.deb && \
-    # Clean up apt caches
+    # Link 'fd' for convenience
+    ln -s /usr/bin/fdfind /usr/bin/fd && \
+    # Install gdu manually
+    wget -qO /tmp/gdu.deb https://github.com/dundee/gdu/releases/download/v5.19.0/gdu_5.19.0_linux_amd64.deb && \
+    dpkg -i /tmp/gdu.deb && rm /tmp/gdu.deb && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 4) Install Starship prompt
+# Install Starship prompt
 RUN curl -sS https://starship.rs/install.sh | sh -s -- -y
 
-# 5) Install Nerd Fonts (Fira Code)
+# Install Nerd Font (Fira Code) and update font cache
 RUN mkdir -p /usr/share/fonts/truetype/nerd && \
     cd /usr/share/fonts/truetype/nerd && \
-    curl -fLo FiraCode.zip \
-      https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip && \
-    unzip FiraCode.zip && \
-    rm FiraCode.zip
+    curl -fLo FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip && \
+    unzip FiraCode.zip && rm FiraCode.zip && \
+    fc-cache -f -v
 
-# 6) Switch default shell for subsequent RUN steps to zsh
+# Use Zsh for subsequent RUN commands
 SHELL ["/bin/zsh", "-c"]
 
-# 7) Set DEV_DATA_PATH (can be overridden at runtime)
+# Set default data path (can be overridden at runtime)
 ENV DEV_DATA_PATH=/dDd-Dev
 
-# 8) If running in Codespaces, persist DEV_DATA_PATH in /etc/environment
+# In Codespaces, persist DEV_DATA_PATH
 RUN if [[ -n "$CODESPACES" ]]; then \
       echo "DEV_DATA_PATH=/dDd-Dev" >> /etc/environment; \
     fi
 
-# 9) Install Oh My Zsh (noninteractive; clones into /root/.oh-my-zsh)
+# Install Oh My Zsh for root
 RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh
 
-# 10) Create /root/.zshrc that:
-#     • Sources $DEV_DATA_PATH/.dotfiles/.zshrc if available
-#     • Initializes Starship
-#     • Loads Oh My Zsh + selected plugins
+# Create root's .zshrc to load dotfiles, Starship, and plugins
 RUN cat << 'EOF' > /root/.zshrc
-# ────────────────────────────────────────────────────────────────────────────
-# Load user dotfiles if available
+# Load user dotfiles if present
 if [[ -f "$DEV_DATA_PATH/.dotfiles/.zshrc" ]]; then
   source "$DEV_DATA_PATH/.dotfiles/.zshrc"
 fi
-
 # Initialize Starship prompt
 eval "$(starship init zsh)"
-
-# Load Oh My Zsh and selected plugins
+# Oh My Zsh initialization
 export ZSH=/root/.oh-my-zsh
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
-source \$ZSH/oh-my-zsh.sh
-
-# Alias to quickly jump to DEV_DATA_PATH
-alias dDd="\$DEV_DATA_PATH"
+source $ZSH/oh-my-zsh.sh
+alias dDd="$DEV_DATA_PATH"
 EOF
 
-# 11) Install Python‐based AI/CLI tools via pipx
-RUN python3 -m pip install --upgrade pip setuptools wheel && \
-    python3 -m pip install --user pipx && \
-    ~/.local/bin/pipx ensurepath && \
-    ~/.local/bin/pipx install shell-gpt && \
-    ~/.local/bin/pipx install llm && \
-    ~/.local/bin/pipx install osh && \
-    ~/.local/bin/pipx install readme-ai && \
-    ~/.local/bin/pipx install redacter
+# Install Python-based CLI tools via pipx (as user ddd later)
+RUN python3 -m pip install --upgrade pip setuptools wheel
 
-# 12) Install Node‐based AI/CLI tools via npm
-RUN npm install -g @diagramgpt/cli devopsgpt
-
-# 13) Install Rust toolchain & Rust‐based tools (chatgpt-code-plugin + ripgrep-all + git-delta)
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
-    source "$HOME/.cargo/env" && \
-    cargo install chatgpt-code-plugin && \
-    cargo install ripgrep_all && \
-    cargo install git-delta
-
-# 14) Switch back to bash for user creation
+# Switch back to bash to create user
 SHELL ["/bin/bash", "-c"]
 
-# 15) Create non‐root user "ddd" with zsh as its login shell
+# Create non-root user 'ddd' with Zsh login shell
 RUN useradd -m -s /usr/bin/zsh ddd
 
-# 16) Switch to user "ddd" for the remaining steps
+# Prepare the /dDd-Dev folder and dotfiles mount
+RUN mkdir -p /dDd-Dev/.dotfiles && chown -R ddd:ddd /dDd-Dev
+
 USER ddd
 WORKDIR /home/ddd
 
-# 17) Create placeholder directory for dotfiles to be mounted at runtime
-RUN mkdir -p /dDd-Dev/.dotfiles
+# Install Python CLI tools (as user) via pipx
+RUN python3 -m pip install --user pipx && \
+    ~/.local/bin/pipx ensurepath && \
+    ~/.local/bin/pipx install shell-gpt llm osh readme-ai redacter
 
-# 18) Copy the external entrypoint.sh (must exist at repo root)
+# Set entrypoint script (must be provided in the repo)
 COPY --chown=ddd:ddd entrypoint.sh /home/ddd/entrypoint.sh
-
-# 19) Make entrypoint.sh executable
 RUN chmod +x /home/ddd/entrypoint.sh
 
-# 20) Set entrypoint and default command
 ENTRYPOINT ["/home/ddd/entrypoint.sh"]
 WORKDIR /workspace
 CMD ["zsh"]

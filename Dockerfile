@@ -2,8 +2,8 @@
 # │   dDd-dev-env Dockerfile (Ubuntu 22.04, corrected)                        │
 # └────────────────────────────────────────────────────────────────────────────┘
 
-# 1) Base image: Ubuntu 22.04
-FROM ubuntu:22.04
+# 1) Base image:bookworm-slim (Debian 12)
+FROM debian:bookworm-slim
 
 # 2) Prevent interactive prompts during apt installs
 ENV DEBIAN_FRONTEND=noninteractive

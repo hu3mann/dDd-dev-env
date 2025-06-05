@@ -14,10 +14,10 @@ RUN apt-get update && \
 # --- 2. Starship prompt & Nerd Font ----------------------------------------
 RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y && \
     mkdir -p /usr/share/fonts/truetype/nerd && \
-    curl -L -o /tmp/FiraCode.zip \
-      https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip && \
-    unzip -q /tmp/FiraCode.zip -d /usr/share/fonts/truetype/nerd && \
-    rm /tmp/FiraCode.zip && fc-cache -f -v
+    curl -L -o /tmp/Hack.zip \
+      https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip && \
+    unzip -q /tmp/Hack.zip -d /usr/share/fonts/truetype/nerd && \
+    rm /tmp/Hack.zip && fc-cache -f -v
 
 # --- 3. Oh‑My‑Zsh without heredoc trouble ----------------------------------
 RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh

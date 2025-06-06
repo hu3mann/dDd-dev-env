@@ -31,6 +31,14 @@ RUN install -o ddd -g ddd -m 644 /root/.config/starship/starship.toml \
 
 # --- 4. non‑root dev user ---------------------------------------------------
 RUN useradd -m -s /usr/bin/zsh ddd
+
+# --- starship theme ----------------------------------------------------
+COPY starship.toml /root/.config/starship/starship.toml
+RUN mkdir -p /home/ddd/.config/starship && \
+    install -o ddd -g ddd -m 644 /root/.config/starship/starship.toml \
+      /home/ddd/.config/starship/starship.toml
+# -----------------------------------------------------------------------
+
 USER ddd
 WORKDIR /home/ddd
 

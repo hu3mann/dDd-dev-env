@@ -1,7 +1,15 @@
-# dDd-dev-env/Dockerfile  — Debian 12 slim
+# ────────────────────────────────────────────────────────────────
+# dDd-dev-env/Dockerfile — Debian 12 (bookworm-slim)
+# Maintainer: your name/email (optional)
+# Description: Dev container with Zsh, Starship, Oh-My-Zsh, WP-CLI, and more!
+# ────────────────────────────────────────────────────────────────
+
 FROM debian:bookworm-slim
 
-# --- 1. core OS packages & CLIs --------------------------------------------
+# ──────────────── 1. Avoid service startups during build ────────────────
+RUN echo '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
+
+# ──────────────── 2. Core OS packages & CLIs ────────────────────────────
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       curl zsh git gh nano wget unzip gnupg \
@@ -12,7 +20,7 @@ RUN apt-get update && \
     ln -s /usr/bin/fdfind /usr/bin/fd && \
     rm -rf /var/lib/apt/lists/*
 
-# --- 2. Starship prompt & Nerd Font ----------------------------------------
+# ──────────────── 3. Starship prompt & Nerd Font ────────────────────────
 RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y && \
     mkdir -p /usr/share/fonts/truetype/nerd && \
     curl -L -o /tmp/Hack.zip \
@@ -20,38 +28,65 @@ RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y && \
     unzip -q /tmp/Hack.zip -d /usr/share/fonts/truetype/nerd && \
     rm /tmp/Hack.zip && fc-cache -f -v
 
-# --- 3. Oh‑My‑Zsh without heredoc trouble ----------------------------------
+# ──────────────── 4. Oh-My-Zsh (no heredoc parsing issues) ──────────────
 RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh
 
-# --- 4. non‑root dev user ---------------------------------------------------
+# ──────────────── 5. Create non-root dev user ───────────────────────────
 RUN useradd -m -s /usr/bin/zsh ddd
 
-# --- 5. starship theme ------------------------------------------------------
+# ──────────────── 6. Starship config for dev user ───────────────────────
 COPY starship.toml /root/.config/starship/starship.toml
 RUN mkdir -p /home/ddd/.config/starship && \
     install -o ddd -g ddd -m 644 /root/.config/starship/starship.toml \
       /home/ddd/.config/starship/starship.toml
 
+# ──────────────── 7. Switch to dev user for safer operations ────────────
 USER ddd
 WORKDIR /home/ddd
 
-# --- 6. install WP‑CLI + requested plugins ----------------------------------
+# ──────────────── 8. Install WP-CLI + WordPress plugins ─────────────────
+# - Ensures ~/bin exists before mv
+# - Installs WP-CLI for user and requested plugins
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-    php wp-cli.phar --info && chmod +x wp-cli.phar && mv wp-cli.phar ~/bin/wp && \
-    mkdir ~/wp-cli && cd ~/wp-cli && \
-    wp plugin install ai-engine jetpack rank-math-seo \
-      bertha-ai 10web-ai simply-static-pro wp2static --activate --allow-root
+    php wp-cli.phar --info && \
+    chmod +x wp-cli.phar && \
+    mkdir -p ~/bin && \
+    mv wp-cli.phar ~/bin/wp && \
+    mkdir -p ~/wp-cli && \
+    cd ~/wp-cli && \
+    wp plugin install \
+      ai-engine \
+      jetpack \
+      rank-math-seo \
+      bertha-ai \
+      10web-ai \
+      simply-static-pro \
+      wp2static \
+      --activate --allow-root
 
-# --- 7. Install additional WP plugins ---------------------------------------
-RUN mkdir -p /var/www && cd /var/www && \
-    wp plugin install ai-engine jetpack rank-math-seo bertha-ai \
-      10web-ai-builder wp2static simply-static-pro --activate --allow-root
-
-# --- 8. copy pre‑built Zsh config (avoids heredoc parse error) -------------
+# ──────────────── 9. Install additional WP plugins system-wide ──────────
 USER root
+RUN mkdir -p /var/www && cd /var/www && \
+    wp plugin install \
+      ai-engine \
+      jetpack \
+      rank-math-seo \
+      bertha-ai \
+      10web-ai-builder \
+      wp2static \
+      simply-static-pro \
+      --activate --allow-root
+
+# ──────────────── 10. Copy Zsh config & entrypoint ──────────────────────
 COPY root.zshrc /root/.zshrc
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# ──────────────── 11. Entrypoint & default shell ────────────────────────
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["zsh"]
+
+# ────────────────────────────────────────────────────────────────
+#  🟢 Ready! This image provides a full-featured dev environment
+#     with Zsh, Starship, Oh-My-Zsh, WP-CLI, and more.
+# ────────────────────────────────────────────────────────────────

@@ -7,7 +7,8 @@ RUN apt-get update && \
       curl zsh git gh nano wget unzip gnupg \
       software-properties-common jq diffutils htop \
       python3 python3-pip nodejs npm ripgrep fzf bat \
-      fd-find exa httpie mariadb-client php php-mysql && \
+      fd-find exa httpie mariadb-client php php-mysql \
+      fontconfig && \
     ln -s /usr/bin/fdfind /usr/bin/fd && \
     rm -rf /var/lib/apt/lists/*
 

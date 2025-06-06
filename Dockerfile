@@ -1,4 +1,4 @@
-# dDd‑dev‑env/Dockerfile  — Debian 12 slim
+# dDd-dev-env/Dockerfile  — Debian 12 slim
 FROM debian:bookworm-slim
 
 # --- 1. core OS packages & CLIs --------------------------------------------
@@ -23,50 +23,35 @@ RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y && \
 # --- 3. Oh‑My‑Zsh without heredoc trouble ----------------------------------
 RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh
 
-# --- starship theme ----------------------------------------------------
-COPY starship.toml /root/.config/starship/starship.toml
-RUN install -o ddd -g ddd -m 644 /root/.config/starship/starship.toml \
-      /home/ddd/.config/starship/starship.toml
-# -----------------------------------------------------------------------
-
 # --- 4. non‑root dev user ---------------------------------------------------
 RUN useradd -m -s /usr/bin/zsh ddd
 
-# --- starship theme ----------------------------------------------------
+# --- 5. starship theme ------------------------------------------------------
 COPY starship.toml /root/.config/starship/starship.toml
 RUN mkdir -p /home/ddd/.config/starship && \
     install -o ddd -g ddd -m 644 /root/.config/starship/starship.toml \
       /home/ddd/.config/starship/starship.toml
-# -----------------------------------------------------------------------
 
 USER ddd
 WORKDIR /home/ddd
 
-# --- starship theme ----------------------------------------------------
-COPY starship.toml /root/.config/starship/starship.toml
-RUN mkdir -p /home/ddd/.config/starship && \
-    install -o ddd -g ddd -m 644 /root/.config/starship/starship.toml \
-      /home/ddd/.config/starship/starship.toml
-# -----------------------------------------------------------------------
-
-USER ddd
-WORKDIR /home/ddd
-
-# --- 5. install WP‑CLI + requested plugins ---------------------------------
+# --- 6. install WP‑CLI + requested plugins ----------------------------------
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     php wp-cli.phar --info && chmod +x wp-cli.phar && mv wp-cli.phar ~/bin/wp && \
     mkdir ~/wp-cli && cd ~/wp-cli && \
     wp plugin install ai-engine jetpack rank-math-seo \
       bertha-ai 10web-ai simply-static-pro wp2static --activate --allow-root
 
-      # --- 6. Install additional WP plugins ---------------------------------------
+# --- 7. Install additional WP plugins ---------------------------------------
 RUN mkdir -p /var/www && cd /var/www && \
-        wp plugin install ai-engine jetpack rank-math-seo bertha-ai \
-          10web-ai-builder wp2static simply-static-pro --activate --allow-root
+    wp plugin install ai-engine jetpack rank-math-seo bertha-ai \
+      10web-ai-builder wp2static simply-static-pro --activate --allow-root
 
-# --- copy pre‑built Zsh config (avoids heredoc parse error) ------------
+# --- 8. copy pre‑built Zsh config (avoids heredoc parse error) -------------
+USER root
 COPY root.zshrc /root/.zshrc
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["zsh"]

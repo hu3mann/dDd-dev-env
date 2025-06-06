@@ -42,6 +42,16 @@ RUN mkdir -p /home/ddd/.config/starship && \
 USER ddd
 WORKDIR /home/ddd
 
+# --- starship theme ----------------------------------------------------
+COPY starship.toml /root/.config/starship/starship.toml
+RUN mkdir -p /home/ddd/.config/starship && \
+    install -o ddd -g ddd -m 644 /root/.config/starship/starship.toml \
+      /home/ddd/.config/starship/starship.toml
+# -----------------------------------------------------------------------
+
+USER ddd
+WORKDIR /home/ddd
+
 # --- 5. install WP‑CLI + requested plugins ---------------------------------
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     php wp-cli.phar --info && chmod +x wp-cli.phar && mv wp-cli.phar ~/bin/wp && \

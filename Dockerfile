@@ -35,6 +35,3 @@ RUN useradd -m -s /usr/bin/zsh ddd && \
 
 USER ddd
 WORKDIR /home/ddd
-
-# --- 5
-

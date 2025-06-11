@@ -38,16 +38,16 @@ WORKDIR /home/ddd
 
 # --- 5. Install WP-CLI + requested plugins ---
 # Download WP-CLI
-RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
-    && php wp-cli.phar --info \
-    && chmod +x wp-cli.phar \
-    && sudo mv wp-cli.phar /usr/local/bin/wp \  # Use sudo to move to /usr/local/bin
-    || mv wp-cli.phar /usr/bin/wp \            # Fallback to /usr/bin if /usr/local/bin is not writable
-    && mkdir -p /tmp/wpinstall \
-    && cd /tmp/wpinstall \
-    && wp core download --allow-root \
-    && wp core install --url=localhost --title="Dev" --admin_user=admin --admin_password=admin --admin_email=admin@localhost --skip-email --allow-root \
-    && wp plugin install ai-engine jetpack rank-math-seo bertha-ai 10web-ai-builder wp2static simply-static-pro --activate --allow-root
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    php wp-cli.phar --info && \
+    chmod +x wp-cli.phar && \
+    (mv wp-cli.phar /usr/local/bin/wp || mv wp-cli.phar /usr/bin/wp) && \
+    mkdir -p /tmp/wpinstall && \
+    cd /tmp/wpinstall && \
+    wp core download --allow-root && \
+    wp core install --url=localhost --title="Dev" --admin_user=admin --admin_password=admin --admin_email=admin@localhost --skip-email --allow-root && \
+    wp plugin install ai-engine jetpack rank-math-seo bertha-ai 10web-ai-builder wp2static simply-static-pro --activate --allow-root
+
 # --- 6. Entrypoint for dotfiles auto-clone ---
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

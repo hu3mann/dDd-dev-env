@@ -3,10 +3,23 @@
 FROM debian:bookworm-slim
 
 # --- 1. Core OS packages & CLIs ---
-RUN apt-get update &&     apt-get install -y --no-install-recommends       curl zsh git gh nano wget unzip gnupg       software-properties-common jq diffutils htop       python3 python3-pip nodejs npm ripgrep fzf bat       fd-find exa httpie mariadb-client php php-mysql &&     ln -s /usr/bin/fdfind /usr/bin/fd &&     rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      curl zsh git gh nano wget unzip gnupg \
+      software-properties-common jq diffutils htop \
+      python3 python3-pip nodejs npm ripgrep fzf bat \
+      fd-find exa httpie mariadb-client php php-mysql \
+      fontconfig && \
+    ln -s /usr/bin/fdfind /usr/bin/fd && \
+    rm -rf /var/lib/apt/lists/*
 
 # --- 2. Starship prompt & Nerd Font (FiraCode) ---
-RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y &&     mkdir -p /root/.config/starship &&     mkdir -p /usr/share/fonts/truetype/nerd &&     curl -L -o /tmp/FiraCode.zip       https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip &&     unzip -q /tmp/FiraCode.zip -d /usr/share/fonts/truetype/nerd &&     rm /tmp/FiraCode.zip && fc-cache -f -v
+RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y && \
+    mkdir -p /root/.config/starship && \
+    mkdir -p /usr/share/fonts/truetype/nerd && \
+    curl -L -o /tmp/FiraCode.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip && \
+    unzip -q /tmp/FiraCode.zip -d /usr/share/fonts/truetype/nerd && \
+    rm /tmp/FiraCode.zip && fc-cache -f -v
 
 # --- 3. Oh-My-Zsh, shell plugins, and configs ---
 RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh
@@ -15,13 +28,23 @@ COPY root.zshrc /root/.zshrc
 COPY starship.toml /root/.config/starship/starship.toml
 
 # --- 4. Non-root user (ddd), same Starship config for ddd ---
-RUN useradd -m -s /usr/bin/zsh ddd &&     mkdir -p /home/ddd/.config/starship &&     cp /root/.config/starship/starship.toml /home/ddd/.config/starship/starship.toml &&     chown -R ddd:ddd /home/ddd/.config/starship
+RUN useradd -m -s /usr/bin/zsh ddd && \
+    mkdir -p /home/ddd/.config/starship && \
+    cp /root/.config/starship/starship.toml /home/ddd/.config/starship/starship.toml && \
+    chown -R ddd:ddd /home/ddd/.config/starship
 
 USER ddd
 WORKDIR /home/ddd
 
 # --- 5. Install WP-CLI + requested plugins ---
-RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar &&     php wp-cli.phar --info && chmod +x wp-cli.phar && mv wp-cli.phar /usr/local/bin/wp &&     mkdir -p /tmp/wpinstall && cd /tmp/wpinstall &&     wp core download --allow-root &&     wp config create --dbname=wp --dbuser=root --dbpass= --skip-check --allow-root &&     wp db create --allow-root || true &&     wp core install --url=localhost --title="Dev" --admin_user=admin --admin_password=admin --admin_email=admin@localhost --skip-email --allow-root &&     wp plugin install ai-engine jetpack rank-math-seo bertha-ai 10web-ai-builder wp2static simply-static-pro --activate --allow-root
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    php wp-cli.phar --info && chmod +x wp-cli.phar && mv wp-cli.phar /usr/local/bin/wp && \
+    mkdir -p /tmp/wpinstall && cd /tmp/wpinstall && \
+    wp core download --allow-root && \
+    wp config create --dbname=wp --dbuser=root --dbpass= --skip-check --allow-root && \
+    wp db create --allow-root || true && \
+    wp core install --url=localhost --title="Dev" --admin_user=admin --admin_password=admin --admin_email=admin@localhost --skip-email --allow-root && \
+    wp plugin install ai-engine jetpack rank-math-seo bertha-ai 10web-ai-builder wp2static simply-static-pro --activate --allow-root
 
 # --- 6. Entrypoint for dotfiles auto-clone ---
 COPY entrypoint.sh /entrypoint.sh

@@ -31,7 +31,10 @@ COPY starship.toml /root/.config/starship/starship.toml
 RUN useradd -m -s /usr/bin/zsh ddd && \
     mkdir -p /home/ddd/.config/starship && \
     cp /root/.config/starship/starship.toml /home/ddd/.config/starship/starship.toml && \
-    chown -R ddd:ddd /home/ddd/.config/starship
+    cp -r /root/.oh-my-zsh /home/ddd/.oh-my-zsh && \
+    cp /root/.zshrc /home/ddd/.zshrc && \
+    sed -i 's|/root|/home/ddd|g' /home/ddd/.zshrc && \
+    chown -R ddd:ddd /home/ddd
 
 USER ddd
 WORKDIR /home/ddd

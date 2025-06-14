@@ -3,9 +3,13 @@
   "build": {
     "dockerfile": "../Dockerfile"
   },
-  "settings": {
-    "terminal.integrated.shell.linux": "/bin/zsh",
-    "editor.fontFamily": "Fira Code Nerd Font"
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/zsh",
+        "editor.fontFamily": "Fira Code Nerd Font"
+      }
+    }
   },
   "mounts": [
     "source=devcontainer-data,target=/dDd-Dev,type=volume"

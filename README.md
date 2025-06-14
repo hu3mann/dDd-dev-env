@@ -41,7 +41,8 @@ This dev environment uses Starship with **imported module configs** for maximum 
 3. **Build and run:**
    ```sh
    docker build -t ddd-dev .
-   docker run --rm -it -v /your/local/drive:/dDd-Dev ddd-dev
+   # pass your host path as an argument or set DEV_DATA_PATH
+   ./run-dev-env.sh /path/to/drive
    ```
 
    *If `/dDd-Dev/.dotfiles` is missing, the container will auto-clone from your private repo.*

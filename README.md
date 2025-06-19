@@ -65,7 +65,7 @@ This dev environment uses Starship with **imported module configs** for maximum 
 
 ## 📝 Customization
 
-- Zsh is pre-configured with Oh My Zsh, [autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), [syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting), and [fzf](https://github.com/junegunn/fzf) fuzzy search.
+- Zsh is pre-configured with Oh My Zsh, [autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), [syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting), [cli_codex](https://github.com/tom-doerr/zsh_codex) AI completions, and [fzf](https://github.com/junegunn/fzf) fuzzy search.
 - Starship prompt is themed for vibrant, readable output with icons (Nerd Font required—preinstalled FiraCode Nerd).
 - Your own dotfiles are loaded automatically if present in `/dDd-Dev/.dotfiles/.zshrc`.
 

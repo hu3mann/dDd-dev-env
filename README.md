@@ -1,117 +1,92 @@
-# dDd-dev-env (Portable Development Environment)
+# dDd-dev-env: Eye-Candy Dev Container with aharoJ Starship Theme
 
-This repository defines a portable development container image that you can use:
-1. **Locally** via Docker / GitHub Container Registry (GHCR)
-2. **In GitHub Codespaces** via the built‑in devcontainer support
+This is a **modern Docker development container** featuring:
+- Zsh + Oh My Zsh, autosuggestions, syntax highlighting, and fzf fuzzy search
+- **Starship prompt** themed and modularized (using aharoJ’s high-contrast config)
+- [WordPress CLI + AI plugins pre-installed](#wordpress-ai-plugins)
+- Auto-cloning of your private dotfiles if not mounted
+- GitHub Actions compatible
 
-It boots Debian with Zsh, Starship as the primary prompt, Oh My Zsh plugins, and auto‑sources your
-private dotfiles from an external "dDd‑Dev" data directory.
+## ✨ Prompt Features (aharoJ Eye Candy)
 
-## Prerequisites
+This dev environment uses Starship with **imported module configs** for maximum visual clarity:
 
-- **Docker** 20.10 or newer (local usage)
-- (Optional) **GitHub account & Codespaces** for cloud dev
-- (Optional) **GitHub PAT** with `write:packages` (if you push your image to GHCR)
-- **Private dotfiles** repo (added as a submodule under your data root at `.dotfiles/`) containing:
-  - `~/.zshrc`, other shell configs
-  - `.docker/config.json` with GHCR creds
+| Module      | What it does                                             |
+|-------------|---------------------------------------------------------|
+| Directory   | Shows pretty, icon-enhanced working directory           |
+| Git         | Vivid branch/status display, ahead/behind, icons        |
+| Languages   | Detects & shows Node, Python, PHP, etc. version info    |
+| Battery     | Status shown (for laptops)                              |
+| Time        | Clock in prompt                                         |
+| Cmd         | Time each command took to run                           |
+| Name        | Shows username/host info                                |
 
-> **Security note:** Keep your dotfiles repo private so credentials never leak.
+**Prompt modules are managed via modular TOML configs in `/scripts/active/` and `/scripts/non-active/`, then imported in `starship.toml` using the [Starship import system](https://starship.rs/config/#importing-other-configs).**
 
-## SSD / DEV_DATA_PATH Layout
+### Example prompt
 
-Your projects, dotfiles, and VS Code data should live under a persistent "data root" (SSD/host directory).
-By default the helper script mounts this repo's parent directory into the container as `/dDd-Dev`. Example:
+(See `/z/` for more screenshots, if desired.)
 
-```text
-/Volumes/SSD-Data
-├── .dotfiles           # submodule → your private dotfiles repo
-├── code-portable-data  # VS Code settings & extensions
-└── Projects
-    ├── dDd-dev-env     # this repo
-    ├── project-A
-    └── project-B
-```
+## 🐳 Quick Start
 
-## Local Usage (Docker)
+1. **Clone this repo:**
+   ```sh
+   git clone https://github.com/yourname/dDd-dev-env.git
+   cd dDd-dev-env
+   ```
 
-```bash
-# 1. Clone & cd into this repo
-git clone git@github.com:hu3mann/dDd-dev-env.git
-cd dDd-dev-env
+2. **Copy your private dotfiles repo to `/dDd-Dev/.dotfiles` on your machine**  
+   (Or let the container clone it for you on first run.)
 
-# 2. (Optional) Login to GHCR for pulling/pushing
-echo "$GHCR_PAT" \
-  | docker login ghcr.io --username hu3mann --password-stdin
+3. **Build and run:**
+   ```sh
+   docker build -t ddd-dev .
+   # pass your host path as an argument or set DEV_DATA_PATH
+   ./run-dev-env.sh /path/to/drive
+   ```
 
-# 3. (Optional) Override data root if outside parent directory
-export DEV_DATA_PATH=/Volumes/SSD-Data
+   *If `/dDd-Dev/.dotfiles` is missing, the container will auto-clone from your private repo.*
 
-# 4. Launch the container (mounts your data root → /dDd-Dev)
-./run-dev-env.sh
-```
+## ⚙️ Enabling/Disabling Prompt Modules
 
-Inside the container, Zsh will:
-- Source `$DEV_DATA_PATH/.dotfiles/.zshrc`
-- Initialize Starship prompt
-- Load Oh My Zsh with `zsh-autosuggestions` & `zsh-syntax-highlighting`
+- To add or remove features, **edit `starship.toml` and modify the `import` array**:
+  ```toml
+  import = [
+    "scripts/active/directory.toml",
+    "scripts/active/git.toml",
+    "scripts/active/languages.toml",
+    "scripts/non-active/time.toml",        # comment this to hide the clock
+    "scripts/non-active/battery.toml",     # comment this if not on a laptop
+    "scripts/non-active/cmd.toml",
+    "scripts/non-active/name.toml"
+  ]
+  ```
+- Or directly edit the individual `*.toml` files for custom tweaks.
 
-Your `code-portable-data/` and `Projects/…` appear under `/dDd-Dev`.
+## 📝 Customization
 
-## Building & Publishing the Image (GHCR)
+- Zsh is pre-configured with Oh My Zsh, [autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), [syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting), and [fzf](https://github.com/junegunn/fzf) fuzzy search.
+- Starship prompt is themed for vibrant, readable output with icons (Nerd Font required—preinstalled FiraCode Nerd).
+- Your own dotfiles are loaded automatically if present in `/dDd-Dev/.dotfiles/.zshrc`.
 
-On each push to `main`, the included GitHub Actions workflow
-(`.github/workflows/build-and-push.yml`) will build and push:
-```
-ghcr.io/hu3mann/ddd-dev-env:latest
-```
+## 🛠️ WordPress AI Plugins
 
-### Manual (Local) build & push
+- Preinstalled with WP-CLI and the following AI/static plugins: AI Engine, Jetpack AI, Rank Math AI, Bertha AI, 10Web AI, WP2Static, Simply Static Pro.
+- See `Dockerfile` for install commands and upgrade instructions.
 
-```bash
-# from repo root
-docker build -t ghcr.io/hu3mann/ddd-dev-env:latest .
-docker push ghcr.io/hu3mann/ddd-dev-env:latest
-```
+## 🚀 Screenshots
 
-## GitHub Codespaces
+Screenshots of the prompt and its modules are in `/z/` if you add them.
 
 Open this repo in a new Codespace or VS Code Remote-Container. The devcontainer will:
 1. Mount a persistent volume at `/dDd-Dev`
 2. On first startup, clone your data repo into `/dDd-Dev` if the volume is empty.
    This uses `[ "$(ls -A /dDd-Dev 2>/dev/null)" ] || git clone $DEV_DATA_REPO_URL /dDd-Dev`.
 
-### Configure your data repo URL
+### Attribution
 
-In `.devcontainer/devcontainer.json`, set `DEV_DATA_REPO_URL` to your data‑repo:
+- Starship config and modular setup based on [aharoJ/starship-config](https://github.com/aharoJ/starship-config)
+- Starship prompt: [starship.rs](https://starship.rs/)
+- Zsh, Oh My Zsh, and plugins: see their respective repos
 
-```jsonc
-"remoteEnv": {
-  "DEV_DATA_REPO_URL": "https://github.com/hu3mann/dDd-Dev.git"
-},
-```
-
-## Managing Your Dotfiles Submodule
-
-Your private dotfiles repo (`git@github.com:hu3mann/dotfiles.git`) holds your shell config and GHCR creds.
-To link it under your data root:
-
-```bash
-# one‑time init (if not already)
-git submodule add git@github.com:hu3mann/dotfiles.git .dotfiles
-git submodule update --init --recursive
-```
-
-When you change your dotfiles:
-
-```bash
-cd .dotfiles && git add . && git commit -m "chore: update dotfiles" && git push
-cd ..
-git add .dotfiles && git commit -m "chore: bump dotfiles submodule" && git push
-```
-
-## Switching Between Projects
-
-Every project under `Projects/…` can use this same base image. Simply open its folder in VS Code and
-**Reopen in Container**. For a multi‑root workspace that loads all your repos in one window, move
-`.devcontainer/` up to the data‑root and create a `.code-workspace` listing each `Projects/<repo>`.
+---

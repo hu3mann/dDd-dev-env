@@ -22,7 +22,9 @@ RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y && \
     rm /tmp/FiraCode.zip && fc-cache -f -v
 
 # --- 3. Oh-My-Zsh, shell plugins, and configs ---
-RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh
+RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /root/.oh-my-zsh \
+ && git clone --depth=1 https://github.com/tom-doerr/zsh_codex /root/.oh-my-zsh/custom/plugins/cli_codex \
+ && mv /root/.oh-my-zsh/custom/plugins/cli_codex/zsh_codex.plugin.zsh /root/.oh-my-zsh/custom/plugins/cli_codex/cli_codex.plugin.zsh
 
 COPY root.zshrc /root/.zshrc
 COPY starship.toml /root/.config/starship/starship.toml

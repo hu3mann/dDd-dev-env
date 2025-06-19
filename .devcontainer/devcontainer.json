@@ -11,7 +11,7 @@
     "source=devcontainer-data,target=/dDd-Dev,type=volume"
   ],
   "remoteEnv": {
-    "DEV_DATA_REPO_URL": "https://github.com/hu3mann/DDDD.git"
+    "DEV_DATA_REPO_URL": "https://github.com/hu3mann/dDd-Dev.git"
   },
   "postCreateCommand": "[ -d /dDd-Dev ] || git clone $DEV_DATA_REPO_URL /dDd-Dev",
   "remoteUser": "root"

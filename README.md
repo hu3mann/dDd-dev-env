@@ -78,7 +78,8 @@ docker push ghcr.io/hu3mann/ddd-dev-env:latest
 
 Open this repo in a new Codespace or VS Code Remote-Container. The devcontainer will:
 1. Mount a persistent volume at `/dDd-Dev`
-2. On first startup, clone your data repo into `/dDd-Dev` if the volume is empty
+2. On first startup, clone your data repo into `/dDd-Dev` if the volume is empty.
+   This uses `[ "$(ls -A /dDd-Dev 2>/dev/null)" ] || git clone $DEV_DATA_REPO_URL /dDd-Dev`.
 
 ### Configure your data repo URL
 

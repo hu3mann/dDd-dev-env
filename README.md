@@ -78,7 +78,10 @@ This dev environment uses Starship with **imported module configs** for maximum 
 
 Screenshots of the prompt and its modules are in `/z/` if you add them.
 
----
+Open this repo in a new Codespace or VS Code Remote-Container. The devcontainer will:
+1. Mount a persistent volume at `/dDd-Dev`
+2. On first startup, clone your data repo into `/dDd-Dev` if the volume is empty.
+   This uses `[ "$(ls -A /dDd-Dev 2>/dev/null)" ] || git clone $DEV_DATA_REPO_URL /dDd-Dev`.
 
 ### Attribution
 

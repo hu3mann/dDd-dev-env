@@ -31,7 +31,7 @@ COPY starship.toml /root/.config/starship/starship.toml
 
 # --- 4. Non-root user (ddd), same Starship config for ddd ---
 RUN useradd -m -s /usr/bin/zsh ddd && \
-    mkdir -p /home/ddd/.config/starship && \
+    install -d -o ddd -g ddd /home/ddd/.config/starship && \
     cp /root/.config/starship/starship.toml /home/ddd/.config/starship/starship.toml && \
     cp -r /root/.oh-my-zsh /home/ddd/.oh-my-zsh && \
     cp /root/.zshrc /home/ddd/.zshrc && \

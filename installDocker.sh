@@ -35,8 +35,7 @@ brew update --quiet
 
 # 4️⃣  Install Docker Desktop (Cask writes the .app to /Applications)
 echo "▶︎ Installing Docker Desktop …"
-brew install --cask docker --appdir=/Applications \
-  # cask-level override installs to /Applications rather than ~/Applications
+brew install --cask docker --appdir=/Applications  # --appdir is a cask-level override
 
 # 5️⃣  Launch Docker the first time so it sets up its privileged helper
 open -a Docker

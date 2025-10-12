@@ -3,16 +3,20 @@
   "build": {
     "dockerfile": "../Dockerfile"
   },
-  "settings": {
-    "terminal.integrated.shell.linux": "/bin/zsh",
-    "editor.fontFamily": "Fira Code Nerd Font"
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/zsh",
+        "editor.fontFamily": "Fira Code Nerd Font"
+      }
+    }
   },
   "mounts": [
     "source=devcontainer-data,target=/dDd-Dev,type=volume"
   ],
   "remoteEnv": {
-    "DEV_DATA_REPO_URL": "https://github.com/hu3mann/DDDD.git"
+    "DEV_DATA_REPO_URL": "https://github.com/hu3mann/dDd-Dev.git"
   },
-  "postCreateCommand": "[ -d /dDd-Dev ] || git clone $DEV_DATA_REPO_URL /dDd-Dev",
+  "postCreateCommand": "[ \"$(ls -A /dDd-Dev 2>/dev/null)\" ] || git clone $DEV_DATA_REPO_URL /dDd-Dev",
   "remoteUser": "root"
 }

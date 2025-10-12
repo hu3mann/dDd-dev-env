@@ -1,4 +1,18 @@
 {
   "terminal.integrated.fontFamily": "Fira Code Nerd Font",
-  "terminal.integrated.defaultProfile.linux": "zsh"
+"terminal.integrated.defaultProfile.linux": "zsh",
+// Add to your VS Code settings.json
+"workbench.colorCustomizations": {
+  "terminal.background": "#1E1E28",
+  "terminal.foreground": "#A6ADC8",
+  "terminal.ansiBlue": "#8AADF4",
+  "terminal.ansiCyan": "#8BE9FD",
+  "terminal.ansiGreen": "#A6E3A1",
+  "terminal.ansiMagenta": "#DDB6F2",
+  "terminal.ansiRed": "#F38BA8",
+  "terminal.ansiYellow": "#F9E2AF",
+  "terminal.ansiWhite": "#D9E0EE",
+  "terminal.ansiBrightBlack": "#6E6C7E",
+  "terminal.ansiBrightWhite": "#FFFFFF"
+}
 }

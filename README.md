@@ -49,6 +49,11 @@ This dev environment uses Starship with **imported module configs** for maximum 
 
 ## ⚙️ Enabling/Disabling Prompt Modules
 
+Inside the container, Zsh will:
+- Source `$DEV_DATA_PATH/.dotfiles/.zshrc`
+- Initialize Starship prompt
+- Load Oh My Zsh with `zsh-autosuggestions` & `zsh-syntax-highlighting`
+- Provide helpful aliases (`ls` → `exa --icons`, `ll`, `la`, `l`) and sets `EDITOR=nano`
 - To add or remove features, **edit `starship.toml` and modify the `import` array**:
   ```toml
   import = [
@@ -65,9 +70,11 @@ This dev environment uses Starship with **imported module configs** for maximum 
 
 ## 📝 Customization
 
-- Zsh is pre-configured with Oh My Zsh, [autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), [syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting), [cli_codex](https://github.com/tom-doerr/zsh_codex) AI completions, and [fzf](https://github.com/junegunn/fzf) fuzzy search.
-- Starship prompt is themed for vibrant, readable output with icons (Nerd Font required—preinstalled FiraCode Nerd).
-- Your own dotfiles are loaded automatically if present in `/dDd-Dev/.dotfiles/.zshrc`.
+### Included CLI tools
+
+The image comes with handy utilities like `ripgrep`, `fzf`, `bat`, `exa`, `htop`, and `tmux` preinstalled.
+
+## Building & Publishing the Image (GHCR)
 
 ## 🛠️ WordPress AI Plugins
 
